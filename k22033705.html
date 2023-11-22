@@ -3,26 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+            body{
+                font-family: 'Monaco', 'Arial Narrow', Arial, sans-serif, Helvetica, sans-serif;
+            }
+            .hidden{
+                display: none;
+            }
+            
+            #json-container{
+                width: 100%;
+                margin: 0 10% auto;
+                text-align: left;
+                border-radius: 10px 10px 0 0;
+            }
+    
+            #json-table{
+                width: 80%;
+                margin-left: 0;
+                text-align: center;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                border-radius: 10px 10px 0 0;
+            }
+    
+            #json-table th{
+                background-color: #afc4b1;
+                color: white;
+                padding: 5px;
+            }
+    
+            #json-table td{
+                padding: 10px;
+            }
+    
+            #json-table tr:nth-child(even){
+                background-color: #f2f2f2;
+            }
+
+    
+            #json-table tr:hover{
+                background-color: #ddd;
+            }
+    
+            #json-table th{
+                padding-top: 12px;
+                padding-bottom: 12px;
+                text-align: center;
+                background-color: #afc4b1;
+                color: white;
+                
+            }
+
+            #json-table th:nth-child(1){
+                border-radius: 10px 0 0 0;
+            }
+
+            #json-table th:nth-child(4){
+                border-radius: 0 10px 0 0;
+            }
+    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
     <script>
         $(document).ready(()=>{
             $("button").click(()=>{
                 $.getJSON("https://nms.kcl.ac.uk/leonardo.magela/api/5CCS2INS/customers/1973-05-28", (data)=>{
-                    var tableBody = $("#json-table");
+                    let tableBody = $("#json-table");
+                    let mainDiv = $("#json-container");
+                    let numClients = $("<p>").text("Number of clients: " + data.length);
+                    mainDiv.append(numClients);
+                    let totalBonus = 0;
+                    let emails = [];
+
                     for (let i = 0; i < data.length; i++) {
                         const client = data[i];
-                        var tableRow = $("<tr>");
+                        let tableRow = $("<tr>");
                         $.each(client, (key,value)=>{
-                            var tableDataCell = $("<td>").text(value);
+                            let tableDataCell = $("<td>").text(value);
                             if (key == "bonus") {
                                 if (!isNaN(value)) {
                                 tableDataCell.text(parseFloat(value).toFixed(2));
+                                totalBonus += parseFloat(value);
                                 }
+                            }
+                            if (key == "email") {
+                                emails.push(value);
                             }
                             tableRow.append(tableDataCell);
                         });
                         tableBody.append(tableRow);
                     }
+                    let emailList = $("<ul>");
+                    for (let i = 0; i < emails.length; i++) {
+                        const email = emails[i];
+                        let emailListItem = $("<li>").text(email);
+                        emailList.append(emailListItem);      
+                    }
+                    let totalBonusElem = $("<p>").text("Total Bonus: £" + totalBonus.toFixed(2));
+                    mainDiv.append(totalBonusElem);
+                    let emailListTitle = $("<p>").text("Emails:");
+                    mainDiv.append(emailListTitle);
+                    mainDiv.append(emailList);
+                    $(".hidden").toggle();
 
                 });
             })
@@ -32,17 +113,18 @@
 </head>
 <body>
     <div id="json-container">
-    <button>Load JSON</button>
-    <table id="json-table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Bonus (£)</th>
-                <th>Date of Birth</th>
+    <h1>View Bonus Data:</h1>
+    <button>Load JSON</button><br><br>  
+    <table class="hidden" id="json-table">
+        <thead class="hidden" >
+            <tr class="hidden" >
+                <th class="hidden" >Name</th>
+                <th class="hidden" >Email</th>
+                <th class="hidden" >Bonus (£)</th>
+                <th class="hidden" >Date of Birth</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody class="hidden" >
         </tbody>
     </div>
 </body>
